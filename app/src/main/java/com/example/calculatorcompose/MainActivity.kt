@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: CalculatorViewModel by viewModels()
             val calculatorState by viewModel.state.collectAsState()
-            Calculator(modifier = Modifier.fillMaxSize(), viewModel = viewModel, calculatorState)
+            Calculator(modifier = Modifier.fillMaxSize(), viewModel = viewModel, state = calculatorState)
         }
     }
 }
