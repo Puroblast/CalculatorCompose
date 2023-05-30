@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calculatorcompose.domain.model.ButtonAction
 import com.example.calculatorcompose.domain.model.CalculatorOperation
+import com.example.calculatorcompose.domain.model.CalculatorState
 import com.example.calculatorcompose.presentation.ui.buttons.CalculatorButton
 import com.example.calculatorcompose.presentation.viewmodel.CalculatorViewModel
 
@@ -25,7 +26,8 @@ import com.example.calculatorcompose.presentation.viewmodel.CalculatorViewModel
 fun Calculator(
 
     modifier: Modifier,
-    viewModel: CalculatorViewModel
+    viewModel: CalculatorViewModel,
+    state: CalculatorState
 
 ) {
     Box(
@@ -41,8 +43,8 @@ fun Calculator(
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Text(
-                text = if (viewModel.state.operation == null || viewModel.state.secondNumber == "") viewModel.state.firstNumber
-                else viewModel.state.secondNumber,
+                text = if (state.operation == null || state.secondNumber == "") state.firstNumber
+                else state.secondNumber,
                 fontSize = 80.sp,
                 color = Color.White,
                 modifier = Modifier

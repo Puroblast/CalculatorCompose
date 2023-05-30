@@ -1,16 +1,16 @@
 package com.example.calculatorcompose.presentation.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.calculatorcompose.domain.model.ButtonAction
 import com.example.calculatorcompose.domain.model.CalculatorState
 import com.example.calculatorcompose.domain.model.CalculatorOperation
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class CalculatorViewModel : ViewModel() {
 
-    var state by mutableStateOf(CalculatorState())
+    private val _state = MutableStateFlow(CalculatorState())
+    val state = _state.asStateFlow()
 
     fun onAction(action: ButtonAction) {
         when (action) {
@@ -25,76 +25,83 @@ class CalculatorViewModel : ViewModel() {
     }
 
     private fun createOperation(operation: CalculatorOperation) {
-        if (state.firstNumber != "") {
-            state = state.copy(operation = operation)
+        if (_state.value.firstNumber != "") {
+            _state.value = _state.value.copy(operation = operation)
         }
     }
 
     private fun calculate() {
-        if (state.firstNumber != "" && state.secondNumber != "" && state.operation != null) {
-            val firstNumber = state.firstNumber.toDouble()
-            val secondNumber = state.secondNumber.toDouble()
+        if (_state.value.firstNumber != "" && _state.value.secondNumber != "" && _state.value.operation != null) {
+            val firstNumber = _state.value.firstNumber.toDouble()
+            val secondNumber = _state.value.secondNumber.toDouble()
 
-            state = when (state.operation) {
+            _state.value = when (_state.value.operation) {
                 is CalculatorOperation.Divide -> {
-                    state.copy(firstNumber = (firstNumber / secondNumber).toString().take(16))
+                    _state.value.copy(
+                        firstNumber = (firstNumber / secondNumber).toString().take(16)
+                    )
                 }
 
                 is CalculatorOperation.Multiply -> {
-                    state.copy(firstNumber = (firstNumber * secondNumber).toString().take(16))
+                    _state.value.copy(
+                        firstNumber = (firstNumber * secondNumber).toString().take(16)
+                    )
                 }
 
                 is CalculatorOperation.Plus -> {
-                    state.copy(firstNumber = (firstNumber + secondNumber).toString().take(16))
+                    _state.value.copy(
+                        firstNumber = (firstNumber + secondNumber).toString().take(16)
+                    )
                 }
 
                 is CalculatorOperation.Minus -> {
-                    state.copy(firstNumber = (firstNumber - secondNumber).toString().take(16))
+                    _state.value.copy(
+                        firstNumber = (firstNumber - secondNumber).toString().take(16)
+                    )
                 }
 
                 else -> return
             }
-            state = state.copy(secondNumber = "")
-            state = state.copy(operation = null)
+            _state.value = _state.value.copy(secondNumber = "", operation = null)
         }
     }
 
 
     private fun putDecimal() {
-        if (state.firstNumber != "" && state.operation == null && !state.firstNumber.contains(".")) {
-            state = state.copy(firstNumber = state.firstNumber + ".")
-        } else if (state.secondNumber != "" && state.operation != null && !state.secondNumber.contains(
-                "."
-            )
+        if (_state.value.firstNumber != "" && _state.value.operation == null && !_state.value.firstNumber.contains(".")
         ) {
-            state = state.copy(secondNumber = state.secondNumber + ".")
+            _state.value = _state.value.copy(firstNumber = _state.value.firstNumber + ".")
+        } else if (_state.value.secondNumber != "" && _state.value.operation != null && !_state.value.secondNumber.contains(".")
+        ) {
+            _state.value = _state.value.copy(secondNumber = _state.value.secondNumber + ".")
         }
     }
 
 
     private fun clearField() {
-        state = CalculatorState()
+        _state.value = CalculatorState()
     }
 
     private fun deleteNumber() {
         when {
-            state.secondNumber != "" -> state =
-                state.copy(secondNumber = state.secondNumber.dropLast(1))
+            _state.value.secondNumber != "" -> _state.value =
+                _state.value.copy(secondNumber = _state.value.secondNumber.dropLast(1))
 
-            state.operation != null -> state = state.copy(operation = null)
-            state.firstNumber != "" -> state =
-                state.copy(firstNumber = state.firstNumber.dropLast(1))
+            _state.value.operation != null -> _state.value = _state.value.copy(operation = null)
+            _state.value.firstNumber != "" -> _state.value =
+                _state.value.copy(firstNumber = _state.value.firstNumber.dropLast(1))
         }
     }
 
     private fun enterNumber(number: Int) {
-        state = if (state.operation == null && state.firstNumber.length < MAX_NUMBER_LENGTH) {
-            state.copy(firstNumber = state.firstNumber + number)
-        } else if (state.operation != null && state.secondNumber.length < MAX_NUMBER_LENGTH) {
-            state.copy(secondNumber = state.secondNumber + number)
-        } else {
-            return
-        }
+        _state.value =
+            if (_state.value.operation == null && _state.value.firstNumber.length < MAX_NUMBER_LENGTH) {
+                _state.value.copy(firstNumber = _state.value.firstNumber + number)
+            } else if (_state.value.operation != null && _state.value.secondNumber.length < MAX_NUMBER_LENGTH) {
+                _state.value.copy(secondNumber = _state.value.secondNumber + number)
+            } else {
+                return
+            }
 
     }
 
